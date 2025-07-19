@@ -1,0 +1,75 @@
+datasource db {
+    url      = env("DATABASE_URL")
+    provider = "postgresql"
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model Organizacao {
+    id        String     @id @default(uuid())
+    nome      String     @db.Char(200)
+    documento String     @unique @db.Char(14)
+    info      Json       @db.JsonB()
+    createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+    updatedAt DateTime   @map("updated_at") @db.Timestamptz(3)
+    deletedAt DateTime   @map("deleted_at") @db.Timestamptz(3)
+    usuarios  Usuario[]
+    campanhas Campanha[]
+
+    @@map("organizacoes")
+}
+
+model Usuario {
+    id            Int          @id @default(autoincrement())
+    nome          String       @db.Char(200)
+    email         String       @unique @db.Char(100)
+    estaAtivo     Boolean      @default(true)
+    permissao     Json         @db.JsonB
+    createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+    updatedAt     DateTime     @map("updated_at") @db.Timestamptz(3)
+    deletedAt     DateTime     @map("deleted_at") @db.Timestamptz(3)
+    Organizacao   Organizacao? @relation(fields: [organizacaoId], references: [id])
+    organizacaoId String?      @map("organizacao_id")
+
+    @@map("usuarios")
+}
+
+model Campanha {
+    id            String       @id @default(uuid())
+    nome          String       @db.Char(200)
+    inicio        DateTime     @db.Timestamptz(3)
+    fim           DateTime     @db.Timestamptz(3)
+    createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+    updatedAt     DateTime     @map("updated_at") @db.Timestamptz(3)
+    deletedAt     DateTime     @map("deleted_at") @db.Timestamptz(3)
+    Organizacao   Organizacao? @relation(fields: [organizacaoId], references: [id])
+    organizacaoId String?
+    Urls          Url[]
+
+    @@map("campanhas")
+}
+
+model Url {
+    id         Int       @id @default(autoincrement())
+    utms       Json      @db.JsonB
+    status     Boolean   @default(true)
+    createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+    updatedAt  DateTime  @map("updated_at") @db.Timestamptz(3)
+    deletedAt  DateTime  @map("deleted_at") @db.Timestamptz(3)
+    Campanha   Campanha? @relation(fields: [campanhaId], references: [id])
+    campanhaId String?
+    acessos    Acesso[]
+
+    @@map("urls")
+}
+
+model Acesso {
+    id        String   @id @default(uuid())
+    device    Json     @db.JsonB
+    timezone  String   @default("desconhecido")
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+    Url       Url?     @relation(fields: [urlId], references: [id])
+    urlId     Int?
+}

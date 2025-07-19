@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+:root {
+  --primary: #ffffff;
+  --secondary: #171717;
+}
+
+@theme inline {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
